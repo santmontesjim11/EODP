@@ -243,7 +243,7 @@ class mtf:
             ax.set_title(f"System MTF - slice {direccion}")
             ax.set_xlabel("Spatial frequencies f/(1/w) [-]")
             ax.set_ylabel("MTF")
-            ax.set_xlim(0, 0.5)
+            ax.set_xlim(0, 0.52)
             ax.set_ylim(0, 1.05)
             ax.grid(True, alpha=0.4)
             ax.legend(loc="lower left", fontsize=8)
