@@ -105,7 +105,15 @@ class detectionPhase(initIsm):
         :return: Toa in photons
         """
         #TODO
+        h = self.constants.h_planck
+        c = self.constants.speed_light
+
+        energia_incidente = (toa * 1e-3) * area_pix * tint
+        energia_foton = h * c / wv
+        toa_ph = energia_incidente / energia_foton
+
         return toa_ph
+
 
     def phot2Electr(self, toa, QE):
         """
@@ -115,6 +123,8 @@ class detectionPhase(initIsm):
         :return: toa in electrons
         """
         #TODO
+        toae = toa * QE
+        toae[toae > self.ismConfig.FWC] = self.ismConfig.FWC
         return toae
 
     def badDeadPixels(self, toa,bad_pix,dead_pix,bad_pix_red,dead_pix_red):
@@ -128,6 +138,22 @@ class detectionPhase(initIsm):
         :return: toa in e- including bad & dead pixels
         """
         #TODO
+        n_act = toa.shape[1]
+
+        n_bad = int(n_act * bad_pix / 100)
+        n_dead = int(n_act * dead_pix / 100)
+
+        toa = toa.copy()
+
+        if n_bad > 0:
+            step_bad = int(n_act / n_bad)
+            idx_bad = range(5, n_act, step_bad)
+            toa[:, idx_bad] *= (1 - bad_pix_red)
+
+        if n_dead > 0:
+            step_dead = int(n_act / n_dead)
+            idx_dead = range(0, n_act, step_dead)
+            toa[:, idx_dead] *= (1 - dead_pix_red)
         return toa
 
     def prnu(self, toa, kprnu):
@@ -138,8 +164,9 @@ class detectionPhase(initIsm):
         :return: TOA after adding PRNU [e-]
         """
         #TODO
+        prnu_act = np.random.standard_normal(toa.shape[1]) * kprnu
+        toa = toa * (1 + prnu_act[np.newaxis, :])
         return toa
-
 
     def darkSignal(self, toa, kdsnu, T, Tref, ds_A_coeff, ds_B_coeff):
         """
@@ -153,4 +180,10 @@ class detectionPhase(initIsm):
         :return: TOA in [e-] with dark signal
         """
         #TODO
+        Sd = ds_A_coeff * (T / Tref) ** 3 * np.exp(
+            -ds_B_coeff * (1 / T - 1 / Tref)
+        )
+
+        dsnu_act = np.abs(np.random.standard_normal(toa.shape[1]) * kdsnu)
+        toa = toa + Sd * (1 + dsnu_act[np.newaxis, :])
         return toa

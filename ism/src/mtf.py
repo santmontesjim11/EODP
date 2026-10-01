@@ -254,3 +254,27 @@ class mtf:
         plt.show()
         plt.close(fig)
 
+        fig2, ax2 = plt.subplots(figsize=(9, 6))
+
+        imagen = ax2.imshow(
+            Hsys,
+            origin="lower",
+            cmap="jet",
+            vmin=0,
+            vmax=1,
+            aspect="auto"
+        )
+
+        ax2.set_title(f"System MTF for {band}")
+        ax2.set_xlabel("ACT")
+        ax2.set_ylabel("ALT")
+        fig2.colorbar(imagen, ax=ax2, label="MTF")
+
+        fig2.tight_layout()
+        fig2.savefig(
+            os.path.join(directory, f"system_mtf_2d_{band}.png"),
+            dpi=150
+        )
+        plt.show()
+        plt.close(fig2)
+
