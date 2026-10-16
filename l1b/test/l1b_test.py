@@ -458,66 +458,61 @@ toa_truth = leer_perfil(RUTA_TRUTH)
 act = np.arange(150)
 
 
-# ============================================================
-# CREAR GRÁFICA
-# ============================================================
+for numero in range(4):
+    band = f"VNIR-{numero}"
 
-plt.figure(figsize=(12, 6))
+    ruta_eq = os.path.join(
+        BASE, "output_santi", f"l1b_toa_{band}.nc"
+    )
+    ruta_no_eq = os.path.join(
+        BASE, "output_santi_noteq", f"l1b_toa_{band}.nc"
+    )
+    ruta_truth = os.path.join(
+        BASE, "input", f"ism_toa_isrf_{band}.nc"
+    )
+    ruta_png = os.path.join(
+        BASE, "output_santi",
+        f"comparison_{band}_row{ROW}_nalt{NALT}.png"
+    )
 
-plt.plot(
-    act,
-    toa_eq,
-    color="black",
-    linewidth=1.5,
-    label="TOA L1B with eq"
-)
+    toa_eq = leer_perfil(ruta_eq)
+    toa_no_eq = leer_perfil(ruta_no_eq)
+    toa_truth = leer_perfil(ruta_truth)
 
-plt.plot(
-    act,
-    toa_no_eq,
-    color="red",
-    linewidth=1.2,
-    label="TOA L1B no eq"
-)
+    act = np.arange(len(toa_eq))
 
-plt.plot(
-    act,
-    toa_truth,
-    color="blue",
-    linewidth=1.5,
-    label="TOA after the ISRF"
-)
+    fig, ax = plt.subplots(figsize=(12, 6))
 
-plt.title(
-    f"Effect of the Equalization for VNIR-0 "
-    f"(row={ROW}, nalt={NALT})"
-)
+    ax.plot(
+        act, toa_eq,
+        color="black", linewidth=1.5,
+        label="TOA L1B with eq"
+    )
+    ax.plot(
+        act, toa_no_eq,
+        color="red", linewidth=1.2,
+        label="TOA L1B no eq"
+    )
+    ax.plot(
+        act, toa_truth,
+        color="blue", linewidth=1.5,
+        label="TOA after the ISRF"
+    )
 
-plt.xlabel("ACT pixel [-]")
-plt.ylabel("TOA [mW/m²/sr]")
+    ax.set_title(
+        f"Effect of the Equalization for {band} "
+        f"(row={ROW}, nalt={NALT})"
+    )
+    ax.set_xlabel("ACT pixel [-]")
+    ax.set_ylabel("TOA [mW/m²/sr]")
+    ax.grid(True, alpha=0.5)
+    ax.legend()
 
-plt.grid(True, alpha=0.5)
-plt.legend()
-plt.tight_layout()
+    fig.tight_layout()
+    fig.savefig(ruta_png, dpi=300, bbox_inches="tight")
+    plt.close(fig)
 
-
-# ============================================================
-# GUARDAR PNG
-# ============================================================
-
-plt.savefig(
-    RUTA_PNG,
-    dpi=300,
-    bbox_inches="tight"
-)
-
-plt.show()
-plt.close()
-
-print("\nGráfica creada correctamente.")
-print(f"Row seleccionada: {ROW}")
-print(f"NALT seleccionado: {NALT}")
-print(f"Imagen guardada en:\n{RUTA_PNG}")
+    print(f"{band}: gráfica guardada")
 
 
 # TRUTH = EODP-TS-L1B\input\ism_toa_isrf_VNIR-0.nc
